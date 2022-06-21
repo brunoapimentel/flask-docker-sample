@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: build-service-on-push
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[push]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  params:
+    - name: git-url
+      value: "{{repo_url}}"
+    - name: revision
+      value: "{{revision}}"
+    - name: output-image
+      value: 'quay.io/bpimente/flask-docker-sample:{{revision}}'
+  pipelineRef:
+    name: docker-build
+    bundle: quay.io/redhat-appstudio/hacbs-core-service-templates-bundle:latest
+  workspaces:
+    - name: default
+      persistentVolumeClaim:
+        claimName: app-studio-default-workspace
+
